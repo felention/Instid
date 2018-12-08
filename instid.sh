@@ -1,5 +1,5 @@
 #!/bin/bash
-d='/mnt/d/Documents/Misc'
+d='~/Documents/Misc'
 f="$d/InstagramIDs.txt"
 if [[ -z $1 ]]; then
     echo "Enter a username."
@@ -10,7 +10,11 @@ if [[ -z $(ls $d | grep "InstagramIDs.txt") ]]; then
     touch $f
 fi
 if [[ $1 =~ ^[0-9]+$ ]]; then
-    ex=$(curl -I https://i.instagram.com/api/v1/users/$1/info/ --silent | grep -o "HTTP/2 404")
+    if [[ -z $2 ]]; then
+        echo "Enter an access token after the ID to get the username."
+    fi
+    #ex=$(curl -I "https://i.instagram.com/api/v1/users/$1/info/" --silent | grep -o "HTTP/2 404")
+    ex=$(curl -I "https://api.instagram.com/v1/users/$1/?access_token=$2" --silent | grep -o "HTTP/2 404\|HTTP/2 405")
     if [[ -n $ex ]]; then
         echo "ID is invalid or user is suspended."
         if [[ -n $(grep -iF "$1" $f) ]]; then
@@ -18,7 +22,8 @@ if [[ $1 =~ ^[0-9]+$ ]]; then
         fi
         exit 0
     else
-        usr=$(curl "https://i.instagram.com/api/v1/users/$1/info/" --silent | sed 's/.*username": "//g; s/".*//g')
+        #usr=$(curl "https://i.instagram.com/api/v1/users/$1/info/" --silent | sed 's/.*username": "//g; s/".*//g')
+        usr=$(curl "https://api.instagram.com/v1/users/$1/?access_token=$2" --silent | sed 's/.*username": "//g; s/".*//g')
         echo "$usr"
         if [[ -z $(grep -iF "$usr" $f) ]]; then
             echo -e "$1  ==>  $usr\n" >> $f
