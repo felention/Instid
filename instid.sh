@@ -37,7 +37,7 @@ elif [[ -n $ex ]]; then
     fi
     exit 0
 else
-    id=$(curl --silent "https://www.instagram.com/$1/" | sed -e $'s/,/\\\n/g' | grep '"id":"' | sed 's/"id":"//g; s/"//g')
+    id=$(curl --silent "https://www.instagram.com/$1/" | sed -e $'s/,/\\\n/g' | grep '"id":"' | sed 's/"id":"//g; s/"//g' | head -n 1)
     echo $id
     if [[ -z $(grep -iF "$1" $f) ]]; then
         echo -e "$id  ==>  $1\n" >> $f
